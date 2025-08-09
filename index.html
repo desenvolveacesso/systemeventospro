@@ -56,7 +56,7 @@
     .feature-item:nth-child(6n+4) i { color: var(--event-orange); background-color: rgba(230, 126, 34, 0.1); }
     .feature-item:nth-child(6n+5) i { color: var(--event-green); background-color: rgba(46, 204, 113, 0.1); }
     .feature-item:nth-child(6n+6) i { color: var(--event-teal); background-color: rgba(26, 188, 156, 0.1); }
-  }
+  
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -327,6 +327,8 @@
   .transaction-card.receita::before { background: var(--success); }
   .transaction-card.despesa { border-left-color: var(--danger); }
   .transaction-card.despesa::before { background: var(--danger); }
+  .transaction-card.orcamento { border-left-color: var(--event-orange); }
+  .transaction-card.orcamento::before { background: var(--event-orange); }
 
   .transaction-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   .transaction-body { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
@@ -349,10 +351,11 @@
     font-size: 0.8rem; font-weight: 500;
   }
   .status-badge.confirmada, .status-badge.pago, .status-badge.realizado { background: rgba(29, 185, 84, 0.15); color: var(--success); }
-  .status-badge.pendente, .status-badge.emitido, .status-badge.agendado { background: rgba(255, 154, 0, 0.15); color: var(--warning); }
+  .status-badge.pendente, .status-badge.emitido, .status-badge.agendado, .status-badge.emitido-orcamento { background: rgba(255, 154, 0, 0.15); color: var(--warning); }
   .status-badge.cancelado { background: rgba(255, 65, 108, 0.15); color: var(--danger); }
   .status-badge.confirmado { background: rgba(106, 17, 203, 0.15);
     color: var(--primary); }
+  .status-badge.aprovado-orcamento { background: rgba(46, 204, 113, 0.15); color: var(--event-green); }
 
   
   /* Modal de Detalhes do Balanço */
@@ -370,6 +373,15 @@
   .balance-detail-item h3 i { color: var(--primary); }
   .balance-detail-item p { margin: 8px 0; }
   .balance-detail-item strong { color: var(--dark); }
+  
+  .flex-group {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+  .flex-group .form-group {
+    flex: 1;
+  }
 
   /* Modals */
   .modal {
@@ -518,7 +530,7 @@
   .top-list .amount { font-weight: 600; color: var(--success); }
   
   /* Novos cards */
-  .receipt-card, .client-card, .commitment-card, .order-card {
+  .receipt-card, .client-card, .commitment-card, .order-card, .quote-card {
     background: var(--card-bg);
     border-radius: 12px;
     padding: 15px;
@@ -531,7 +543,8 @@
   .receipt-card::before,
   .client-card::before,
   .commitment-card::before,
-  .order-card::before {
+  .order-card::before,
+  .quote-card::before {
     content: '';
     position: absolute;
     top: 0;
@@ -541,7 +554,7 @@
     border-radius: 4px 0 0 4px;
   }
   
-  .receipt-card:hover, .client-card:hover, .commitment-card:hover, .order-card:hover {
+  .receipt-card:hover, .client-card:hover, .commitment-card:hover, .order-card:hover, .quote-card:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-hover);
   }
@@ -554,6 +567,9 @@
   .commitment-card::before { background: var(--event-purple); }
   .order-card { border-left-color: var(--event-orange); }
   .order-card::before { background: var(--event-orange); }
+  /* NOVO - Estilo para card de Orçamento */
+  .quote-card { border-left-color: var(--event-blue); }
+  .quote-card::before { background: var(--event-blue); }
   
   .form-group {
     margin-bottom: 15px;
@@ -747,63 +763,85 @@
   .commitment-item.realizado { border-left-color: var(--success); }
   .commitment-item.cancelado { border-left-color: var(--danger); }
   
-  #view-order-modal-body .detail-group {
+  #view-order-modal-body .detail-group, #view-quote-modal-body .detail-group {
       margin-bottom: 15px;
       padding-bottom: 10px;
       border-bottom: 1px solid var(--gray-light);
   }
-  #view-order-modal-body .detail-group:last-child {
+  #view-order-modal-body .detail-group:last-child, #view-quote-modal-body .detail-group:last-child {
       border-bottom: none;
   }
-  #view-order-modal-body h4 {
+  #view-order-modal-body h4, #view-quote-modal-body h4 {
       color: var(--primary);
       margin-bottom: 8px;
   }
-  #view-order-modal-body p {
+  #view-order-modal-body p, #view-quote-modal-body p {
       margin: 4px 0;
       font-size: 0.95rem;
   }
-  #view-order-modal-body strong {
+  #view-order-modal-body strong, #view-quote-modal-body strong {
       color: var(--dark);
       margin-right: 5px;
   }
-  #view-order-modal-body ul {
+  #view-order-modal-body ul, #view-quote-modal-body ul {
     list-style-type: none;
     padding-left: 10px;
   }
-  #view-order-modal-body ul li {
+  #view-order-modal-body ul li, #view-quote-modal-body ul li {
     margin-bottom: 4px;
+  }
+  .quote-status {
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+    color: white;
+    margin-top: 10px;
+    display: inline-block;
+  }
+  .quote-status.aprovado { background-color: var(--success); }
+  .quote-status.pendente { background-color: var(--warning); }
+  .quote-status.recusado { background-color: var(--danger); }
+
+  .order-service-item {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
   }
 
 @media (max-width: 768px) {
     .filters-grid, .kpi-grid, .comparison-grid {
-      [cite_start]grid-template-columns: 1fr; [cite: 174]
+      grid-template-columns: 1fr; 
     }
     
-    /* Adicione esta nova regra para os cartões de resumo */
     .summary-cards {
       grid-template-columns: 1fr;
     }
     
     .filter-actions {
-      [cite_start]flex-direction: column; [cite: 175]
+      flex-direction: column; 
     }
     
-    [cite_start].feature-grid { grid-template-columns: 1fr 1fr; [cite: 176] }
+    .feature-grid { grid-template-columns: 1fr 1fr; }
     .main-content { padding: 75px 15px 90px; }
-    [cite_start].balance-detail-item { padding: 10px; [cite: 177] }
+    .balance-detail-item { padding: 10px; }
     
     .modal-content {
-      [cite_start]padding: 20px; [cite: 178]
+      padding: 20px; 
     }
     
     .document-footer {
       flex-direction: column;
-      [cite_start]gap: 20px; [cite: 179]
+      gap: 20px; 
     }
     
     .signature-area {
-      [cite_start]width: 100%; [cite: 180]
+      width: 100%; 
+    }
+    .flex-group {
+      flex-direction: column;
+      gap: 0;
     }
   }
 
@@ -852,8 +890,7 @@ fa-file-invoice"></i><span>Novo Recibo</span></div>
             <div class="shortcut-item" id="add-new-client-btn"><i class="fas fa-user-plus"></i><span>Novo Cliente</span></div>
             <div class="shortcut-item" id="add-new-commitment-btn"><i class="fas fa-handshake"></i><span>Novo Compromisso</span></div>
             <div class="shortcut-item" data-tab-target="documentos"><i class="fas fa-file-alt"></i><span>Gerar Documentos</span></div>
-            <div class="shortcut-item" data-tab-target="pedidos"><i class="fas fa-clipboard-check"></i><span>Meus Pedidos</span></div>
-   
+            <div class="shortcut-item" data-tab-target="pedidos"><i class="fas fa-clipboard-check"></i><span>Pedidos e Orçamentos</span></div>
         </div>
       </div>
       
@@ -1077,18 +1114,32 @@ fa-file-invoice"></i><span>Novo Recibo</span></div>
     
     <div class="tab-content" id="pedidos-content">
       <div class="card">
-        <h2><i class="fas fa-clipboard-check"></i> Meus Pedidos</h2>
-        <button class="btn" style="margin-bottom:15px;" id="add-new-order-btn-aba"><i class="fas fa-plus"></i> Novo Pedido</button>
+        <h2><i class="fas fa-clipboard-check"></i> Meus Pedidos e Orçamentos</h2>
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <button class="btn" id="add-new-order-btn-aba"><i class="fas fa-plus"></i> Novo Pedido</button>
+            <button class="btn" id="add-new-quote-btn-aba" style="background: var(--event-blue);"><i class="fas fa-plus"></i> Novo Orçamento</button>
+        </div>
         <div class="filters-container">
-            <div class="filters-grid" style="grid-template-columns: 1fr;">
+            <div class="filters-grid">
                <div class="filter-group">
-                <label for="search-orders-input">Buscar Pedido por Nome do Cliente</label>
-                <input type="text" id="search-orders-input" placeholder="Digite o nome do cliente...">
+                <label for="search-orders-input">Buscar</label>
+                <input type="text" id="search-orders-input" placeholder="Nome do cliente ou nº...">
+              </div>
+              <div class="filter-group">
+                <label for="type-orders-filter">Tipo</label>
+                <select id="type-orders-filter">
+                    <option value="all">Todos</option>
+                    <option value="order">Pedidos</option>
+                    <option value="quote">Orçamentos</option>
+                </select>
               </div>
             </div>
+            <div class="filter-actions" style="margin-top: 15px;">
+                <button class="btn" id="apply-orders-filter-btn">Aplicar Filtros</button>
+                <button class="btn" id="clear-orders-filter-btn">Limpar Filtros</button>
+            </div>
         </div>
-         <div id="orders-list" class="transactions-list-container" style="margin-top: 20px;"></div>
- 
+        <div id="orders-list" class="transactions-list-container" style="margin-top: 20px;"></div>
       </div>
     </div>
 
@@ -1099,6 +1150,7 @@ fa-file-invoice"></i><span>Novo Recibo</span></div>
           <div class="shortcuts-container" style="padding-bottom: 0; margin-top: 15px;">
              <div class="shortcut-item" id="generate-dj-contract-doc-tab"><i class="fas fa-file-contract"></i><span>Contrato DJ</span></div>
              <div class="shortcut-item" id="generate-event-order-doc-tab"><i class="fas fa-clipboard-list"></i><span>Pedido de Evento</span></div>
+             <div class="shortcut-item" id="generate-event-quote-doc-tab"><i class="fas fa-file-alt"></i><span>Orçamento</span></div>
           </div>
       </div>
 
@@ -1264,6 +1316,57 @@ border-bottom: 1px solid #ddd;">Descrição</th>
           <div style="text-align: center; margin-top: 30px;">
             <button class="btn" id="download-event-order"><i class="fas 
 fa-download"></i> Baixar Pedido</button>
+          </div>
+        </div>
+
+        <div class="document-template" id="event-quote-template">
+          <div class="document-header">
+            <h1 class="document-title">ORÇAMENTO DE SERVIÇOS</h1>
+            <p class="document-subtitle">Nº <span id="quote-number"></span></p>
+          </div>
+
+          <div class="document-section">
+            <h2 class="document-section-title">1. DADOS DO CLIENTE</h2>
+            <p><strong>Nome:</strong> <span id="quote-client-name"></span></p>
+            <p><strong>Telefone:</strong> <span id="quote-client-phone"></span></p>
+            <p><strong>Email:</strong> <span id="quote-client-email"></span></p>
+          </div>
+
+          <div class="document-section">
+            <h2 class="document-section-title">2. DETALHES DO EVENTO</h2>
+            <p><strong>Tipo de Evento:</strong> <span id="quote-event-type"></span></p>
+            <p><strong>Data:</strong> <span id="quote-event-date"></span></p>
+            <p><strong>Horário:</strong> <span id="quote-event-time"></span></p>
+            <p><strong>Local:</strong> <span id="quote-event-location"></span></p>
+          </div>
+
+          <div class="document-section">
+            <h2 class="document-section-title">3. SERVIÇOS INCLUSOS</h2>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+              <thead>
+                <tr style="background-color: #f5f5f5;">
+                  <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Descrição</th>
+                  <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Valor</th>
+                </tr>
+              </thead>
+              <tbody id="quote-services-list"></tbody>
+              <tfoot>
+                <tr>
+                  <td style="padding: 10px; text-align: right; font-weight: bold; border-top: 2px solid #ddd;">Total</td>
+                  <td style="padding: 10px; text-align: right; font-weight: bold; border-top: 2px solid #ddd;" id="quote-total-value"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <div class="document-section">
+            <h2 class="document-section-title">4. CONDIÇÕES GERAIS</h2>
+            <p>Este orçamento é válido por <span id="quote-validity"></span> dias a partir da data de emissão. O valor está sujeito a alterações após este período. A contratação do serviço se dará mediante a assinatura de contrato e/ou pagamento de sinal.</p>
+            <p style="margin-top: 10px;"><strong>Observações:</strong> <span id="quote-notes"></span></p>
+          </div>
+
+          <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" id="download-event-quote"><i class="fas fa-download"></i> Baixar Orçamento</button>
           </div>
         </div>
       </div>
@@ -1593,11 +1696,14 @@ id="commitment-location">
      
       <h2>Gerar Contrato de DJ</h2>
       <form id="dj-contract-form">
-        <div class="form-group">
-          <label for="contract-client-select">Cliente</label>
-          <select id="contract-client-select" required>
-            <option value="">Selecione um cliente</option>
-          </select>
+        <div class="flex-group">
+            <div class="form-group">
+              <label for="contract-client-select">Cliente</label>
+              <select id="contract-client-select" required>
+                <option value="">Selecione um cliente</option>
+              </select>
+            </div>
+            <button type="button" class="btn" id="add-client-from-contract-btn" style="width: auto;"><i class="fas fa-user-plus"></i></button>
         </div>
         
         <div class="form-group" id="contract-order-selector-group" style="display: none;">
@@ -1673,12 +1779,14 @@ class="modal-content">
       <h2 id="event-order-modal-title">Gerar Pedido de Evento</h2>
       <form id="event-order-form">
         <input type="hidden" id="edit-order-id">
-        <div class="form-group">
-          <label for="order-client-select">Cliente</label>
-          <select id="order-client-select" required>
-            <option value="">Selecione um cliente</option>
-          </select>
-        
+        <div class="flex-group">
+          <div class="form-group">
+            <label for="order-client-select">Cliente</label>
+            <select id="order-client-select" required>
+              <option value="">Selecione um cliente</option>
+            </select>
+          </div>
+          <button type="button" class="btn" id="add-client-from-order-btn" style="width: auto;"><i class="fas fa-user-plus"></i></button>
         </div>
         
         <div class="form-group">
@@ -1742,6 +1850,64 @@ class="modal-content">
     </div>
   </div>
 
+  <div id="event-quote-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" data-action="close-modal">&times;</span>
+      <h2 id="event-quote-modal-title">Novo Orçamento</h2>
+      <form id="event-quote-form">
+        <input type="hidden" id="edit-quote-id">
+        <div class="flex-group">
+          <div class="form-group">
+            <label for="quote-client-select">Cliente</label>
+            <select id="quote-client-select" required>
+              <option value="">Selecione um cliente</option>
+            </select>
+          </div>
+          <button type="button" class="btn" id="add-client-from-quote-btn" style="width: auto;"><i class="fas fa-user-plus"></i></button>
+        </div>
+        <div class="form-group">
+          <label for="quote-event-type-input">Tipo de Evento</label>
+          <select id="quote-event-type-input" required>
+            <option value="Casamento">Casamento</option>
+            <option value="Aniversário">Aniversário</option>
+            <option value="Corporativo">Corporativo</option>
+            <option value="Formatura">Formatura</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="quote-event-date-input">Data do Evento</label>
+          <input type="date" id="quote-event-date-input" required>
+        </div>
+        <div class="form-group">
+          <label for="quote-event-time-input">Horário</label>
+          <input type="text" id="quote-event-time-input" value="19:00 às 02:00" required>
+        </div>
+        <div class="form-group">
+          <label for="quote-event-location-input">Local</label>
+          <input type="text" id="quote-event-location-input" required>
+        </div>
+        <div class="form-group">
+          <label>Serviços</label>
+          <div id="quote-services-container"></div>
+          <button type="button" class="btn btn-xs" id="add-service-quote-btn" style="margin-top: 5px;"><i class="fas fa-plus"></i> Adicionar Serviço</button>
+        </div>
+        <div class="form-group">
+            <label for="quote-notes-input">Observações</label>
+            <textarea id="quote-notes-input" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="quote-validity-input">Validade (dias)</label>
+            <input type="number" id="quote-validity-input" min="1" value="30" required>
+        </div>
+        <div class="btn-container">
+          <button type="button" class="btn btn-danger" data-action="close-modal">Cancelar</button>
+          <button type="submit" class="btn">Salvar Orçamento</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div id="calendar-commitments-modal" class="modal">
     <div class="modal-content">
       <span class="close-button" data-action="close-modal">&times;</span>
@@ -1761,7 +1927,22 @@ class="modal-content">
           <button type="button" class="btn btn-danger" data-action="close-modal">Fechar</button>
       </div>
     </div>
- 
+  </div>
+
+  <div id="view-quote-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" data-action="close-modal">&times;</span>
+      <h2 id="view-quote-modal-title">Detalhes do Orçamento</h2>
+      <div id="view-quote-modal-body"></div>
+      <div class="btn-container" style="justify-content: space-between;">
+        <div style="display:flex; gap: 10px;">
+          <button type="button" class="btn" id="view-quote-modal-download-btn"><i class="fas fa-download"></i> Baixar PDF</button>
+          <button type="button" class="btn btn-success" id="view-quote-modal-approve-btn"><i class="fas fa-check"></i> Aprovar e Converter em Pedido</button>
+          <button type="button" class="btn btn-danger" id="view-quote-modal-reject-btn"><i class="fas fa-times"></i> Recusar Orçamento</button>
+        </div>
+        <button type="button" class="btn btn-danger" data-action="close-modal">Fechar</button>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -1779,6 +1960,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let clients = parseLocalStorage('clients', []);
   let commitments = parseLocalStorage('commitments', []);
   let eventOrders = parseLocalStorage('eventOrders', []);
+  // NOVO RECURSO: Orçamentos
+  let eventQuotes = parseLocalStorage('eventQuotes', []);
   let calendarCurrentDate = new Date();
   let userLogo = parseLocalStorage('userLogo', null);
 
@@ -1788,7 +1971,7 @@ document.addEventListener('DOMContentLoaded', () => {
     metas: 'Metas', cartoes: 'Cartões', relatorios: 'Relatórios',
     usuario: 'Perfil', backup: 'Backup',
     recibos: 'Recibos', clientes: 'Clientes', Agenda: 'Agenda',
-    documentos: 'Gerar Documentos', analise: 'Análise de Negócio', pedidos: 'Meus Pedidos'
+    documentos: 'Gerar Documentos', analise: 'Análise de Negócio', pedidos: 'Pedidos e Orçamentos'
   };
   let activeFilters = {
     search: '',
@@ -1797,6 +1980,11 @@ document.addEventListener('DOMContentLoaded', () => {
     expiredOnly: false,
     startDate: '',
     endDate: ''
+  };
+  // NOVO RECURSO: Filtros para pedidos/orçamentos
+  let activeOrderFilters = {
+    search: '',
+    type: 'all',
   };
 
   // --- INICIALIZAÇÃO ---
@@ -1868,9 +2056,18 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('add-new-order-btn-aba').addEventListener('click', () => openEventOrderModal('new'));
     document.getElementById('generate-dj-contract-doc-tab').addEventListener('click', () => openDJContractModal());
     document.getElementById('generate-event-order-doc-tab').addEventListener('click', () => openEventOrderModal('new'));
+    // NOVO RECURSO: Adiciona eventos para orçamentos
+    document.getElementById('add-new-quote-btn-aba').addEventListener('click', () => openEventQuoteModal('new'));
+    document.getElementById('generate-event-quote-doc-tab').addEventListener('click', () => openEventQuoteModal('new'));
+    
+    // NOVO RECURSO: Botões de cadastro rápido de cliente nos modais de documentos
+    document.getElementById('add-client-from-contract-btn').addEventListener('click', () => openClientModal('new', null, () => populateSelect(document.getElementById('contract-client-select'), clients, 'name', 'id')));
+    document.getElementById('add-client-from-order-btn').addEventListener('click', () => openClientModal('new', null, () => populateSelect(document.getElementById('order-client-select'), clients, 'name', 'id')));
+    document.getElementById('add-client-from-quote-btn').addEventListener('click', () => openClientModal('new', null, () => populateSelect(document.getElementById('quote-client-select'), clients, 'name', 'id')));
 
     document.getElementById('download-dj-contract').addEventListener('click', downloadDJContractAsPDF);
     document.getElementById('download-event-order').addEventListener('click', downloadEventOrderAsPDF);
+    document.getElementById('download-event-quote').addEventListener('click', downloadEventQuoteAsPDF);
 
     document.getElementById('transaction-form').addEventListener('submit', handleTransactionSubmit);
     document.getElementById('account-form').addEventListener('submit', handleAccountSubmit);
@@ -1884,7 +2081,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     document.getElementById('dj-contract-form').addEventListener('submit', handleDJContractSubmit);
     document.getElementById('event-order-form').addEventListener('submit', handleEventOrderSubmit);
-    document.getElementById('add-service-btn').addEventListener('click', () => addServiceItem());
+    document.getElementById('add-service-btn').addEventListener('click', () => addServiceItem('order'));
+    // NOVO RECURSO: Adiciona evento para o form de Orçamento
+    document.getElementById('event-quote-form').addEventListener('submit', handleEventQuoteSubmit);
+    document.getElementById('add-service-quote-btn').addEventListener('click', () => addServiceItem('quote'));
+
     document.getElementById('contract-client-select').addEventListener('change', (e) => {
         updateContractOrderSelector(e.target.value);
     });
@@ -1914,6 +2115,20 @@ document.addEventListener('DOMContentLoaded', () => {
       const orderId = e.target.dataset.id;
       if (orderId) downloadExistingOrderAsPDF(parseFloat(orderId));
     });
+    // NOVO RECURSO: Botões de ação no modal de visualização de orçamento
+    document.getElementById('view-quote-modal-download-btn').addEventListener('click', (e) => {
+        const quoteId = e.target.dataset.id;
+        if (quoteId) downloadExistingQuoteAsPDF(parseFloat(quoteId));
+    });
+    document.getElementById('view-quote-modal-approve-btn').addEventListener('click', (e) => {
+        const quoteId = e.target.dataset.id;
+        if (quoteId) convertQuoteToOrder(parseFloat(quoteId));
+    });
+    document.getElementById('view-quote-modal-reject-btn').addEventListener('click', (e) => {
+        const quoteId = e.target.dataset.id;
+        if (quoteId) rejectQuote(parseFloat(quoteId));
+    });
+
     document.getElementById('notifications-container').addEventListener('click', function(e) {
       const target = e.target.closest('.notifications-banner[data-type="pending-transactions"]');
       if (target) {
@@ -1940,7 +2155,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('search-input').addEventListener('keypress', (e) => {
       if (e.key === 'Enter') applyFilters();
     });
-    document.getElementById('search-orders-input').addEventListener('input', updateOrdersList);
+    document.getElementById('search-orders-input').addEventListener('input', applyOrdersFilter);
+    document.getElementById('type-orders-filter').addEventListener('change', applyOrdersFilter);
+    document.getElementById('apply-orders-filter-btn').addEventListener('click', applyOrdersFilter);
+    document.getElementById('clear-orders-filter-btn').addEventListener('click', clearOrdersFilter);
+    
     document.getElementById('transaction-type').addEventListener('change', function() {
       const type = this.value;
       const transferTargetGroup = document.getElementById('transfer-target-type-group');
@@ -1999,10 +2218,15 @@ document.addEventListener('DOMContentLoaded', () => {
             'edit-order': () => openEventOrderModal('edit', id),
             'view-order': () => openViewOrderModal(id),
             'remove-service': () => removeServiceItem(target),
-            'edit-order-from-calendar': () => { // AÇÃO NOVA
+            'edit-order-from-calendar': () => {
                 document.getElementById('calendar-commitments-modal').classList.remove('active');
                 openEventOrderModal('edit', id);
             },
+            // NOVO RECURSO: Ações de Orçamentos
+            'delete-quote': () => deleteItem(eventQuotes, id, 'Orçamento'),
+            'edit-quote': () => openEventQuoteModal('edit', id),
+            'view-quote': () => openViewQuoteModal(id),
+            'approve-quote': () => convertQuoteToOrder(id),
         };
         if(actions[action]) actions[action]();
     });
@@ -2039,6 +2263,21 @@ document.addEventListener('DOMContentLoaded', () => {
     updateTransactionsTable();
   }
 
+  // NOVO RECURSO: Funções para filtros de pedidos/orçamentos
+  function applyOrdersFilter() {
+    activeOrderFilters.search = document.getElementById('search-orders-input').value.toLowerCase();
+    activeOrderFilters.type = document.getElementById('type-orders-filter').value;
+    updateOrdersList();
+  }
+  
+  function clearOrdersFilter() {
+    document.getElementById('search-orders-input').value = '';
+    document.getElementById('type-orders-filter').value = 'all';
+    activeOrderFilters.search = '';
+    activeOrderFilters.type = 'all';
+    updateOrdersList();
+  }
+
   function parseLocalStorage(key, def) { 
     try { 
       const item = localStorage.getItem(key);
@@ -2060,6 +2299,8 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('clients', JSON.stringify(clients));
         localStorage.setItem('commitments', JSON.stringify(commitments));
         localStorage.setItem('eventOrders', JSON.stringify(eventOrders));
+        // NOVO RECURSO: Orçamentos
+        localStorage.setItem('eventQuotes', JSON.stringify(eventQuotes));
         localStorage.setItem('userLogo', JSON.stringify(userLogo));
     } catch (e) {
         if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
@@ -2140,17 +2381,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const id = form.querySelector('#edit-account-id').value;
     const accountIdForAdjustment = form.dataset.accountId;
     if (id) { // Modo Edição
-        let acc = accounts.find(a => a.id == id);
+        let acc = accounts.find(a => a.id === parseFloat(id));
         if (acc) {
             acc.name = form.querySelector('#account-name').value;
             acc.type = form.querySelector('#account-type').value;
         }
     } else if (accountIdForAdjustment) { // Modo Ajuste de Saldo
         const newBalance = parseFloat(form.querySelector('#account-balance').value);
-        let acc = accounts.find(a => a.id == accountIdForAdjustment);
+        let acc = accounts.find(a => a.id === parseFloat(accountIdForAdjustment));
         if (acc && !isNaN(newBalance)) {
             recalculateAllBalances();
-            const currentCalculatedBalance = accounts.find(a => a.id == accountIdForAdjustment).balance;
+            const currentCalculatedBalance = accounts.find(a => a.id === parseFloat(accountIdForAdjustment)).balance;
             const adjustment = newBalance - currentCalculatedBalance;
             acc.initialBalance = (acc.initialBalance || 0) + adjustment;
 
@@ -2193,7 +2434,7 @@ document.addEventListener('DOMContentLoaded', () => {
       targetDate: document.getElementById('modal-goal-date').value
     };
     if (id) {
-      const index = goals.findIndex(g => g.id == id);
+      const index = goals.findIndex(g => g.id === parseFloat(id));
       if (index > -1) {
         goals[index] = { ...goals[index], ...data };
       }
@@ -2215,7 +2456,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dueDay: parseInt(document.getElementById('creditcard-due-day').value)
     };
     if (id) {
-      const index = creditcards.findIndex(c => c.id == id);
+      const index = creditcards.findIndex(c => c.id === parseFloat(id));
       if (index > -1) {
         creditcards[index] = { ...creditcards[index], ...data };
       }
@@ -2340,19 +2581,33 @@ document.addEventListener('DOMContentLoaded', () => {
       birthday: document.getElementById('client-birthday').value,
       address: document.getElementById('client-address').value
     };
+    let clientWasCreated = false;
     if (id) {
-      const index = clients.findIndex(c => c.id == id);
+      const index = clients.findIndex(c => c.id === parseFloat(id));
       if (index > -1) {
         clients[index] = { ...clients[index], ...data };
       }
     } else {
-      clients.push({ ...data, id: Date.now() });
+      const newClient = { ...data, id: Date.now() };
+      clients.push(newClient);
+      clientWasCreated = true;
     }
     saveData(); 
     updateClientsList();
     document.getElementById('client-modal').classList.remove('active');
+    // NOVO - Callback para atualizar os selects após o cadastro
+    const callback = e.target.dataset.callback;
+    if (callback) {
+      window[callback](clients[clients.length-1].id);
+    }
   }
   
+  // NOVO - Função para popular o select de clientes e selecionar um novo
+  function populateClientsAndSelect(targetSelect, callback) {
+    populateSelect(targetSelect, clients, 'name', 'id');
+    if (callback) callback();
+  }
+
   function handleCommitmentSubmit(e) {
     e.preventDefault();
     const id = document.getElementById('edit-commitment-id').value;
@@ -2365,7 +2620,7 @@ document.addEventListener('DOMContentLoaded', () => {
       status: document.getElementById('commitment-status').value
     };
     if (id) {
-      const index = commitments.findIndex(c => c.id == id);
+      const index = commitments.findIndex(c => c.id === parseFloat(id));
       if (index > -1) {
         commitments[index] = { ...commitments[index], ...data };
       }
@@ -2382,7 +2637,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function handleDJContractSubmit(e) {
     e.preventDefault();
     const clientId = document.getElementById('contract-client-select').value;
-    const client = clients.find(c => c.id == clientId);
+    const client = clients.find(c => c.id === parseFloat(clientId));
     if (!client) {
       alert('Selecione um cliente válido');
       return;
@@ -2406,6 +2661,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showTab('documentos');
     document.getElementById('dj-contract-template').style.display = 'block';
     document.getElementById('event-order-template').style.display = 'none';
+    document.getElementById('event-quote-template').style.display = 'none'; // NOVO
     document.getElementById('dj-contract-modal').classList.remove('active');
   }
   
@@ -2415,7 +2671,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const id = document.getElementById('edit-order-id').value;
     const orderServices = [];
     let totalValue = 0;
-    document.querySelectorAll('.order-service-item').forEach(item => {
+    document.querySelectorAll('#order-services-container .order-service-item').forEach(item => {
         const desc = item.querySelector('.order-service-desc').value;
         const value = parseFloat(item.querySelector('.order-service-value').value) || 0;
         if (desc && value > 0) {
@@ -2436,7 +2692,7 @@ document.addEventListener('DOMContentLoaded', () => {
         notes: document.getElementById('order-notes-input').value,
     };
     if (id) {
-        const index = eventOrders.findIndex(o => o.id == id);
+        const index = eventOrders.findIndex(o => o.id === parseFloat(id));
         if (index > -1) {
             eventOrders[index] = { ...eventOrders[index], ...orderData };
         }
@@ -2451,8 +2707,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const client = clients.find(c => c.id === newOrder.clientId);
         const newCommitment = {
             id: Date.now() + 1,
-            linkedOrderId: newOrder.id, // NOVO
-            title: `Evento: ${newOrder.eventType} - ${client.name}`,
+            linkedOrderId: newOrder.id,
+            title: `Evento: ${newOrder.eventType} - ${client?.name || 'Cliente'}`,
             clientId: newOrder.clientId,
             date: `${newOrder.eventDate}T${newOrder.eventTime.split(' ')[0]}`,
             location: newOrder.eventLocation,
@@ -2468,7 +2724,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUI(); 
     modal.classList.remove('active');
 
-    // NOVO - Lógica de redirecionamento aprimorada
     const activeTabId = document.querySelector('.tab-content.active')?.id.replace('-content', '');
     if (activeTabId === 'Agenda') {
       showTab('Agenda');
@@ -2477,6 +2732,55 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // NOVO RECURSO: Função para submeter o formulário de orçamento
+  function handleEventQuoteSubmit(e) {
+    e.preventDefault();
+    const modal = document.getElementById('event-quote-modal');
+    const id = document.getElementById('edit-quote-id').value;
+    const quoteServices = [];
+    let totalValue = 0;
+    document.querySelectorAll('#quote-services-container .order-service-item').forEach(item => {
+        const desc = item.querySelector('.order-service-desc').value;
+        const value = parseFloat(item.querySelector('.order-service-value').value) || 0;
+        if (desc && value > 0) {
+            quoteServices.push({ description: desc, value: value });
+            totalValue += value;
+        }
+    });
+
+    const quoteData = {
+        clientId: parseFloat(document.getElementById('quote-client-select').value),
+        eventType: document.getElementById('quote-event-type-input').value,
+        eventDate: document.getElementById('quote-event-date-input').value,
+        eventTime: document.getElementById('quote-event-time-input').value,
+        eventLocation: document.getElementById('quote-event-location-input').value,
+        services: quoteServices,
+        totalValue: totalValue,
+        notes: document.getElementById('quote-notes-input').value,
+        validity: parseInt(document.getElementById('quote-validity-input').value) || 30,
+        status: 'emitido',
+    };
+    if (id) {
+        const index = eventQuotes.findIndex(o => o.id === parseFloat(id));
+        if (index > -1) {
+            eventQuotes[index] = { ...eventQuotes[index], ...quoteData };
+        }
+    } else {
+        const newQuote = {
+            ...quoteData,
+            id: Date.now(),
+            quoteNumber: 'OR-' + Date.now().toString().slice(-6),
+            emissionDate: new Date().toISOString().split('T')[0],
+        };
+        eventQuotes.push(newQuote);
+        alert('Orçamento criado com sucesso!');
+    }
+
+    saveData();
+    updateUI();
+    modal.classList.remove('active');
+    showTab('pedidos');
+  }
 
   function populateContractFormFromOrder(orderId) {
     if (!orderId) {
@@ -2487,7 +2791,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     
-    const order = eventOrders.find(o => o.id == orderId);
+    const order = eventOrders.find(o => o.id === parseFloat(orderId));
     if (!order) return;
     document.getElementById('contract-event-location-input').value = order.eventLocation;
     document.getElementById('contract-event-date-input').value = order.eventDate;
@@ -2506,7 +2810,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const clientOrders = eventOrders.filter(o => o.clientId == clientId);
+    const clientOrders = eventOrders.filter(o => o.clientId === parseFloat(clientId));
     if (clientOrders.length > 0) {
         clientOrders.forEach(order => {
             const optionText = `${formatDate(order.eventDate)} - ${order.eventType} (${formatCurrency(order.totalValue)})`;
@@ -2518,8 +2822,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function addServiceItem(desc = '', value = '') {
-    const container = document.getElementById('order-services-container');
+  // NOVO RECURSO: Função para adicionar item de serviço (genérico para pedidos e orçamentos)
+  function addServiceItem(type, desc = '', value = '') {
+    const container = type === 'order' ? document.getElementById('order-services-container') : document.getElementById('quote-services-container');
     const newItem = document.createElement('div');
     newItem.className = 'order-service-item';
     newItem.style.display = 'flex';
@@ -2716,7 +3021,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     clientSelect.removeEventListener('change', updateReceiptOrderSelector);
     clientSelect.addEventListener('change', updateReceiptOrderSelector);
-    // NOVO - Adiciona o listener para a mudança no select de pedidos
+    modal.querySelector('#receipt-order').removeEventListener('change', handleReceiptOrderChange);
     modal.querySelector('#receipt-order').addEventListener('change', handleReceiptOrderChange);
 
     if (mode === 'edit' && id) {
@@ -2753,7 +3058,7 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
       }
 
-      const clientOrders = eventOrders.filter(o => o.clientId == clientId);
+      const clientOrders = eventOrders.filter(o => o.clientId === parseFloat(clientId));
       if (clientOrders.length > 0) {
           clientOrders.forEach(order => {
               const optionText = `Pedido ${order.orderNumber} - ${order.eventType}`;
@@ -2766,40 +3071,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (callback) callback();
       
-      // NOVO - Dispara o preenchimento automático da descrição
       handleReceiptOrderChange({ target: orderSelect });
   }
 
-  // NOVO - Função para preencher a descrição do recibo com base no pedido
   function handleReceiptOrderChange(event) {
     const orderId = event.target.value;
     const descriptionTextarea = document.getElementById('receipt-description');
     const amountInput = document.getElementById('receipt-amount');
 
     if (!orderId) {
-        descriptionTextarea.value = ''; // Limpa se nenhum pedido for selecionado
+        descriptionTextarea.value = '';
         return;
     }
 
-    const order = eventOrders.find(o => o.id == orderId);
+    const order = eventOrders.find(o => o.id === parseFloat(orderId));
     if (order) {
-        // Constrói a descrição a partir dos serviços do pedido
         const servicesDescription = order.services
             .map(s => `- ${s.description} (${formatCurrency(s.value)})`)
             .join('\n');
         
         descriptionTextarea.value = `Referente aos serviços contratados no Pedido Nº ${order.orderNumber}:\n${servicesDescription}`;
         
-        // Sugere o valor total do pedido no campo de valor do recibo
         amountInput.value = order.totalValue.toFixed(2);
     }
   }
   
-  function openClientModal(mode, id = null) {
+  function openClientModal(mode, id = null, callback = null) {
     const modal = document.getElementById('client-modal');
     const form = modal.querySelector('#client-form');
     form.reset();
     modal.querySelector('#edit-client-id').value = '';
+    form.dataset.callback = callback ? callback.name : '';
     modal.querySelector('#client-modal-title').textContent = 'Novo Cliente';
     if (mode === 'edit' && id) {
       const client = clients.find(c => c.id === id);
@@ -2892,13 +3194,64 @@ document.addEventListener('DOMContentLoaded', () => {
             modal.querySelector('#order-notes-input').value = order.notes;
             
             order.services.forEach(service => {
-                addServiceItem(service.description, service.value);
+                addServiceItem('order', service.description, service.value);
             });
         }
     } else {
         modal.querySelector('#event-order-modal-title').textContent = 'Gerar Pedido de Evento';
         modal.querySelector('#order-event-date-input').valueAsDate = new Date();
-        addServiceItem(); // Add one empty service item for new orders
+        addServiceItem('order');
+    }
+    
+    modal.classList.add('active');
+  }
+
+  // NOVO RECURSO: Função para abrir o modal de orçamento
+  function openEventQuoteModal(mode, id = null, quoteData = null) {
+    const modal = document.getElementById('event-quote-modal');
+    const form = modal.querySelector('form');
+    form.reset();
+    document.getElementById('edit-quote-id').value = '';
+
+    const clientSelect = modal.querySelector('#quote-client-select');
+    clientSelect.innerHTML = '<option value="">Selecione um cliente</option>';
+    clients.forEach(client => clientSelect.add(new Option(client.name, client.id)));
+
+    const servicesContainer = document.getElementById('quote-services-container');
+    servicesContainer.innerHTML = '';
+
+    if (mode === 'edit' && id) {
+      const quote = eventQuotes.find(q => q.id === id);
+      if (quote) {
+        modal.querySelector('#event-quote-modal-title').textContent = 'Editar Orçamento';
+        document.getElementById('edit-quote-id').value = quote.id;
+        clientSelect.value = quote.clientId;
+        modal.querySelector('#quote-event-type-input').value = quote.eventType;
+        modal.querySelector('#quote-event-date-input').value = quote.eventDate;
+        modal.querySelector('#quote-event-time-input').value = quote.eventTime;
+        modal.querySelector('#quote-event-location-input').value = quote.eventLocation;
+        modal.querySelector('#quote-notes-input').value = quote.notes;
+        modal.querySelector('#quote-validity-input').value = quote.validity;
+        
+        quote.services.forEach(service => {
+          addServiceItem('quote', service.description, service.value);
+        });
+      }
+    } else if (quoteData) { // Para conversão de pedido para orçamento
+      modal.querySelector('#event-quote-modal-title').textContent = 'Converter para Orçamento';
+      clientSelect.value = quoteData.clientId;
+      modal.querySelector('#quote-event-type-input').value = quoteData.eventType;
+      modal.querySelector('#quote-event-date-input').value = quoteData.eventDate;
+      modal.querySelector('#quote-event-time-input').value = quoteData.eventTime;
+      modal.querySelector('#quote-event-location-input').value = quoteData.eventLocation;
+      modal.querySelector('#quote-notes-input').value = quoteData.notes;
+      quoteData.services.forEach(service => {
+        addServiceItem('quote', service.description, service.value);
+      });
+    } else {
+      modal.querySelector('#event-quote-modal-title').textContent = 'Novo Orçamento';
+      modal.querySelector('#quote-event-date-input').valueAsDate = new Date();
+      addServiceItem('quote');
     }
     
     modal.classList.add('active');
@@ -2923,7 +3276,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="detail-group">
         <h4><i class="fas fa-user"></i> Dados do Cliente</h4>
         <p><strong>Nome:</strong> ${client.name}</p>
-        <p><strong>Documento:</strong> ${client.document}</p>
+        <p><strong>Documento:</strong> ${client.document || 'N/A'}</p>
         <p><strong>Contato:</strong> ${client.phone || 'N/A'} | ${client.email || 'N/A'}</p>
       </div>
       <div class="detail-group">
@@ -2974,6 +3327,128 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('view-order-modal-download-btn').dataset.id = orderId;
     modal.classList.add('active');
   }
+
+  // NOVO RECURSO: Função para abrir o modal de visualização de orçamento
+  function openViewQuoteModal(quoteId) {
+    const quote = eventQuotes.find(q => q.id === quoteId);
+    if (!quote) return;
+    
+    const client = clients.find(c => c.id === quote.clientId) || { name: 'N/A', phone: 'N/A', email: 'N/A' };
+    
+    const modal = document.getElementById('view-quote-modal');
+    const body = document.getElementById('view-quote-modal-body');
+    const totalValue = quote.services.reduce((sum, s) => sum + s.value, 0);
+    let servicesHtml = quote.services.map(s => `<p>${s.description}: <strong>${formatCurrency(s.value)}</strong></p>`).join('');
+
+    body.innerHTML = `
+      <div class="detail-group">
+        <h4><i class="fas fa-file-alt"></i> Detalhes do Orçamento</h4>
+        <p><strong>Número:</strong> ${quote.quoteNumber}</p>
+        <p><strong>Data de Emissão:</strong> ${formatDate(quote.emissionDate)}</p>
+        <p><strong>Validade:</strong> ${quote.validity} dias</p>
+        <p><strong>Valor Total:</strong> ${formatCurrency(totalValue)}</p>
+        <p><strong>Status:</strong> <span class="quote-status ${quote.status}-orcamento">${quote.status.charAt(0).toUpperCase() + quote.status.slice(1)}</span></p>
+      </div>
+      <div class="detail-group">
+        <h4><i class="fas fa-user"></i> Dados do Cliente</h4>
+        <p><strong>Nome:</strong> ${client.name}</p>
+        <p><strong>Contato:</strong> ${client.phone || 'N/A'} | ${client.email || 'N/A'}</p>
+      </div>
+      <div class="detail-group">
+        <h4><i class="fas fa-calendar-check"></i> Detalhes do Evento</h4>
+        <p><strong>Tipo:</strong> ${quote.eventType}</p>
+        <p><strong>Data:</strong> ${formatDate(quote.eventDate)}</p>
+        <p><strong>Horário:</strong> ${quote.eventTime}</p>
+        <p><strong>Local:</strong> ${quote.eventLocation}</p>
+      </div>
+      <div class="detail-group">
+        <h4><i class="fas fa-concierge-bell"></i> Serviços Ofertados</h4>
+        ${servicesHtml}
+      </div>
+      <div class="detail-group">
+        <h4><i class="fas fa-info-circle"></i> Observações</h4>
+        <p>${quote.notes.replace(/\n/g, '<br>') || 'Nenhuma.'}</p>
+      </div>
+    `;
+
+    document.getElementById('view-quote-modal-download-btn').dataset.id = quoteId;
+    document.getElementById('view-quote-modal-approve-btn').dataset.id = quoteId;
+    document.getElementById('view-quote-modal-reject-btn').dataset.id = quoteId;
+
+    if (quote.status === 'aprovado' || quote.status === 'recusado') {
+        document.getElementById('view-quote-modal-approve-btn').style.display = 'none';
+        document.getElementById('view-quote-modal-reject-btn').style.display = 'none';
+    } else {
+        document.getElementById('view-quote-modal-approve-btn').style.display = 'inline-flex';
+        document.getElementById('view-quote-modal-reject-btn').style.display = 'inline-flex';
+    }
+
+    modal.classList.add('active');
+  }
+
+  // NOVO RECURSO: Função para converter orçamento para pedido
+  function convertQuoteToOrder(quoteId) {
+      if (!confirm("Tem certeza que deseja aprovar este orçamento e convertê-lo em um Pedido de Evento?")) return;
+      
+      const quoteIndex = eventQuotes.findIndex(q => q.id === quoteId);
+      if (quoteIndex === -1) {
+          alert('Orçamento não encontrado.');
+          return;
+      }
+      const quote = eventQuotes[quoteIndex];
+      quote.status = 'aprovado';
+      
+      const newOrder = {
+          id: Date.now(),
+          orderNumber: 'EV-' + Date.now().toString().slice(-6),
+          clientId: quote.clientId,
+          eventType: quote.eventType,
+          eventDate: quote.eventDate,
+          eventTime: quote.eventTime,
+          eventLocation: quote.eventLocation,
+          eventGuests: 0, // Não há convidados no orçamento, então preenche com 0
+          services: quote.services,
+          totalValue: quote.totalValue,
+          paymentTerms: "Condições de pagamento do contrato a serem definidas", // Padrão
+          notes: `Este pedido foi gerado a partir do Orçamento Nº ${quote.quoteNumber}. ` + quote.notes,
+          linkedQuoteId: quoteId // Adiciona link para o orçamento original
+      };
+      eventOrders.push(newOrder);
+
+      const client = clients.find(c => c.id === newOrder.clientId);
+      const newCommitment = {
+          id: Date.now() + 1,
+          linkedOrderId: newOrder.id,
+          title: `Evento: ${newOrder.eventType} - ${client?.name || 'Cliente'}`,
+          clientId: newOrder.clientId,
+          date: `${newOrder.eventDate}T${newOrder.eventTime.split(' ')[0]}`,
+          location: newOrder.eventLocation,
+          description: `Compromisso gerado do Pedido Nº ${newOrder.orderNumber}. Valor: ${formatCurrency(newOrder.totalValue)}.`,
+          status: 'agendado'
+      };
+      commitments.push(newCommitment);
+      
+      saveData();
+      updateUI();
+      document.getElementById('view-quote-modal').classList.remove('active');
+      alert(`Orçamento Nº ${quote.quoteNumber} aprovado e convertido no Pedido Nº ${newOrder.orderNumber}!`);
+      showTab('pedidos');
+  }
+
+  // NOVO RECURSO: Função para rejeitar um orçamento
+  function rejectQuote(quoteId) {
+      if (!confirm("Tem certeza que deseja recusar este orçamento?")) return;
+      const quote = eventQuotes.find(q => q.id === quoteId);
+      if (quote) {
+          quote.status = 'recusado';
+          saveData();
+          updateUI();
+          document.getElementById('view-quote-modal').classList.remove('active');
+          alert('Orçamento recusado com sucesso.');
+          showTab('pedidos');
+      }
+  }
+
 
   function updateUI() {
     recalculateAllBalances();
@@ -3386,49 +3861,73 @@ document.addEventListener('DOMContentLoaded', () => {
     const list = document.getElementById('orders-list');
     list.innerHTML = '';
     
-    const searchTerm = document.getElementById('search-orders-input').value.toLowerCase();
-    let filteredOrders = eventOrders;
+    const searchTerm = activeOrderFilters.search;
+    const typeFilter = activeOrderFilters.type;
 
-    if (searchTerm) {
-        filteredOrders = eventOrders.filter(order => {
-            const client = clients.find(c => c.id === order.clientId) || {};
-            const clientName = (client.name || '').toLowerCase();
-            return clientName.includes(searchTerm);
-        });
+    let allItems = [];
+    if (typeFilter === 'all' || typeFilter === 'order') {
+        allItems.push(...eventOrders.map(o => ({ ...o, type: 'order' })));
+    }
+    if (typeFilter === 'all' || typeFilter === 'quote') {
+        allItems.push(...eventQuotes.map(q => ({ ...q, type: 'quote' })));
     }
 
-    if (filteredOrders.length === 0) {
-        const message = searchTerm ? 'Nenhum pedido encontrado para sua busca.' : 'Nenhum pedido cadastrado.';
+    let filteredItems = allItems.filter(item => {
+        const client = clients.find(c => c.id === item.clientId) || {};
+        const clientName = (client.name || '').toLowerCase();
+        const number = (item.type === 'order' ? item.orderNumber : item.quoteNumber).toLowerCase();
+        return clientName.includes(searchTerm) || number.includes(searchTerm);
+    });
+
+    if (filteredItems.length === 0) {
+        const message = searchTerm ? 'Nenhum item encontrado para sua busca.' : 'Nenhum pedido ou orçamento cadastrado.';
         list.innerHTML = `<div style="text-align: center; padding: 30px; color: var(--gray);"><i class="fas fa-clipboard-check" style="font-size: 3rem; margin-bottom: 15px;"></i><p>${message}</p></div>`;
         return;
     }
 
-    filteredOrders.sort((a, b) => new Date(b.eventDate) - new Date(a.eventDate)).forEach(order => {
-        const client = clients.find(c => c.id === order.clientId) || { name: 'Cliente não encontrado' };
+    filteredItems.sort((a, b) => {
+        const dateA = a.type === 'order' ? a.eventDate : a.emissionDate;
+        const dateB = b.type === 'order' ? b.eventDate : b.emissionDate;
+        return new Date(dateB) - new Date(dateA);
+    }).forEach(item => {
+        const client = clients.find(c => c.id === item.clientId) || { name: 'Cliente não encontrado' };
         
+        const cardType = item.type === 'order' ? 'order-card' : 'quote-card';
+        const number = item.type === 'order' ? item.orderNumber : item.quoteNumber;
+        const typeLabel = item.type === 'order' ? 'Pedido' : 'Orçamento';
+        const valueColor = item.type === 'order' ? 'var(--event-orange)' : 'var(--event-blue)';
+        const date = item.type === 'order' ? item.eventDate : item.emissionDate;
+
+        let statusBadge = '';
+        if (item.type === 'quote') {
+          const statusTexts = { 'emitido': 'Pendente', 'aprovado': 'Aprovado', 'recusado': 'Recusado' };
+          statusBadge = `<span class="status-badge ${item.status}-orcamento">${statusTexts[item.status]}</span>`;
+        }
+
         const card = document.createElement('div');
-        card.className = 'order-card';
+        card.className = cardType;
         card.innerHTML = `
             <div class="transaction-header">
-              <span class="category-badge">Pedido Nº ${order.orderNumber}</span>
-                <span class="transaction-details">${formatDate(order.eventDate)}</span>
+              <span class="category-badge">${typeLabel} Nº ${number}</span>
+                <span class="transaction-details">${formatDate(date)}</span>
             </div>
             <div class="transaction-body">
-                <span class="transaction-favorecido">${order.eventType} - ${client.name}</span>
-                <span class="transaction-details">Local: ${order.eventLocation || 'Não informado'}</span>
+                <span class="transaction-favorecido">${item.eventType} - ${client.name}</span>
+                <span class="transaction-details">Local: ${item.eventLocation || 'Não informado'}</span>
             </div>
             <div class="transaction-footer">
-                <span class="transaction-value" style="color: var(--event-orange);">${formatCurrency(order.totalValue)}</span>
+                <span class="transaction-value" style="color: ${valueColor};">${formatCurrency(item.totalValue)}</span>
                 <div class="transaction-actions">
-                    <button class="btn btn-xs" data-action="view-order" data-id="${order.id}" title="Visualizar"><i class="fas fa-eye"></i></button>
-                    <button class="btn btn-xs" data-action="edit-order" data-id="${order.id}" title="Editar"><i class="fas fa-edit"></i></button>
-                    <button class="btn btn-xs btn-danger" data-action="delete-order" data-id="${order.id}" title="Excluir"><i class="fas fa-trash"></i></button>
+                    ${statusBadge}
+                    <button class="btn btn-xs" data-action="view-${item.type}" data-id="${item.id}" title="Visualizar"><i class="fas fa-eye"></i></button>
+                    <button class="btn btn-xs" data-action="edit-${item.type}" data-id="${item.id}" title="Editar"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-xs btn-danger" data-action="delete-${item.type}" data-id="${item.id}" title="Excluir"><i class="fas fa-trash"></i></button>
                 </div>
             </div>`;
         list.appendChild(card);
     });
   }
-  
+
   function addModernDocLayout(doc, title) {
     const pageHeight = doc.internal.pageSize.height;
     const pageWidth = doc.internal.pageSize.width;
@@ -3752,6 +4251,87 @@ document.addEventListener('DOMContentLoaded', () => {
     doc.save(`Pedido_${data.orderNumber}_${data.clientName.replace(/\s/g, '_')}.pdf`);
   }
 
+  // NOVO RECURSO: Função para baixar o Orçamento em PDF
+  function downloadEventQuoteAsPDF(quoteId) {
+    const quote = eventQuotes.find(q => q.id === quoteId);
+    if (!quote) return;
+    const client = clients.find(c => c.id === quote.clientId) || {};
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const primaryColor = '#6a11cb';
+
+    let { startY } = addModernDocLayout(doc, `ORÇAMENTO DE SERVIÇOS Nº ${quote.quoteNumber}`);
+
+    const drawInfoSection = (title, info, initialY) => {
+        let currentY = initialY;
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(primaryColor);
+        doc.text(title, 15, currentY);
+        currentY += 7;
+
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        doc.setTextColor('#333333');
+        info.forEach(item => {
+            doc.setFont(undefined, 'bold');
+            doc.text(`${item.label}:`, 20, currentY);
+            doc.setFont(undefined, 'normal');
+            const valueLines = doc.splitTextToSize(String(item.value), 130);
+            doc.text(valueLines, 55, currentY);
+            currentY += (valueLines.length * 5) + 1;
+        });
+        return currentY + 6;
+    };
+
+    const clientData = [
+        { label: 'Cliente', value: client.name || 'N/A' },
+        { label: 'Contato', value: `${client.phone || 'N/A'} | ${client.email || 'N/A'}` },
+    ];
+    startY = drawInfoSection("DADOS DO CLIENTE", clientData, startY);
+
+    const eventData = [
+        { label: 'Evento', value: quote.eventType },
+        { label: 'Data/Hora', value: `${formatDate(quote.eventDate)} - ${quote.eventTime}` },
+        { label: 'Local', value: quote.eventLocation },
+    ];
+    startY = drawInfoSection("DETALHES DO EVENTO", eventData, startY);
+
+    const tableData = quote.services.map(s => [s.description, formatCurrency(s.value)]);
+    const totalValue = quote.services.reduce((sum, s) => sum + s.value, 0);
+
+    doc.autoTable({
+      startY: startY,
+      head: [['Descrição do Serviço', 'Valor']],
+      body: tableData,
+      foot: [['TOTAL', formatCurrency(totalValue)]],
+      theme: 'grid',
+      headStyles: { fillColor: primaryColor, textColor: '#FFFFFF', fontStyle: 'bold' },
+      footStyles: { fillColor: '#F5F5F5', textColor: '#000000', fontStyle: 'bold', halign: 'right'},
+      margin: { left: 15, right: 15 },
+    });
+    startY = doc.lastAutoTable.finalY + 10;
+    
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.setTextColor(primaryColor);
+    doc.text("CONDIÇÕES GERAIS", 15, startY);
+    startY += 6;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.setTextColor('#333333');
+    doc.text(doc.splitTextToSize(`Este orçamento é válido por ${quote.validity} dias a partir da data de emissão (${formatDate(quote.emissionDate)}). O valor está sujeito a alterações após este período. A contratação do serviço se dará mediante a assinatura de contrato e/ou pagamento de sinal.`, doc.internal.pageSize.width - 30), 15, startY);
+    startY += doc.splitTextToSize(doc.text, doc.internal.pageSize.width - 30).length * 5 + 10;
+    
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'bold');
+    doc.text("Observações:", 15, startY);
+    doc.setFont(undefined, 'normal');
+    doc.text(doc.splitTextToSize(quote.notes || 'Nenhuma.', doc.internal.pageSize.width - 30), 45, startY);
+
+    doc.save(`Orcamento_${quote.quoteNumber}_${client.name.replace(/\s/g, '_')}.pdf`);
+  }
+
   function compressImage(base64Str, maxWidth = 800, maxHeight = 800) {
     return new Promise((resolve, reject) => {
         const img = new Image();
@@ -3866,11 +4446,9 @@ document.addEventListener('DOMContentLoaded', () => {
     createOrUpdateChart('monthly-report-chart', 'doughnut', getMonthlyData('despesa'), { responsive: true, plugins: { title: { display: true, text: 'Despesas por Categoria (Mês Atual)'}, legend: { position: 'right' }}});
     createOrUpdateChart('category-report-chart', 'pie', getMonthlyData('receita'), { responsive: true, plugins: { title: { display: true, text: 'Receitas por Categoria (Mês Atual)'}, legend: { position: 'right' }}});
     createOrUpdateChart('annual-report-chart', 'line', getAnnualNetData(), { responsive: true, plugins: { title: { display: true, text: 'Balanço Mensal (Último Ano)'}, legend: { display: false }}, scales: { y: { beginAtZero: false }}});
-    // NOVO - Atualiza o novo relatório
     updateEventTypeReport();
   }
 
-  // NOVO - Função para gerar o relatório por tipo de evento
   function updateEventTypeReport() {
     const filterSelect = document.getElementById('event-type-report-filter');
     const resultsTbody = document.getElementById('event-type-report-results');
@@ -3974,7 +4552,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   function exportBackup() {
-    const data = { accounts, transactions, goals, creditcards, userInfo, categories, receipts, clients, commitments, eventOrders, userLogo };
+    const data = { accounts, transactions, goals, creditcards, userInfo, categories, receipts, clients, commitments, eventOrders, eventQuotes, userLogo };
     const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -4002,6 +4580,7 @@ document.addEventListener('DOMContentLoaded', () => {
           clients = data.clients || [];
           commitments = data.commitments || [];
           eventOrders = data.eventOrders || []; 
+          eventQuotes = data.eventQuotes || []; // NOVO
           userLogo = data.userLogo || null;
           saveData();
           updateUI();
@@ -4102,9 +4681,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="commitment-item ${c.status}" data-action="edit-commitment-from-calendar" data-id="${c.id}" style="cursor: pointer;">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                             <div>
-                                [cite_start][cite: 817]         <strong>${time} - ${c.title}</strong>
-                            <p style="margin: 5px 0; font-size: 0.9em; color: var(--text-color);">${c.description || 'Sem descrição'}</p>
-                            ${c.linkedOrderId ? `<button class="btn btn-xs" data-action="edit-order-from-calendar" data-id="${c.linkedOrderId}" style="margin-top:10px;" type="button"><i class="fas fa-eye"></i> Ver/Editar Pedido</button>` : ''}
+                                <strong>${time} - ${c.title}</strong>
+                                <p style="margin: 5px 0; font-size: 0.9em; color: var(--text-color);">${c.description || 'Sem descrição'}</p>
+                                ${c.linkedOrderId ? `<button class="btn btn-xs" data-action="edit-order-from-calendar" data-id="${c.linkedOrderId}" style="margin-top:10px;" onclick="event.stopPropagation()"><i class="fas fa-eye"></i> Ver/Editar Pedido</button>` : ''}
                             </div>
                             <div class="form-group" style="margin-bottom: 0; min-width: 120px;">
                                <select class="commitment-status-select" data-id="${c.id}" style="padding: 5px 8px; font-size: 0.85rem;" onclick="event.stopPropagation()">
@@ -4192,7 +4771,7 @@ document.addEventListener('DOMContentLoaded', () => {
     topClientsList.innerHTML = '';
     if (sortedClients.length > 0) {
         sortedClients.forEach(([clientId, amount]) => {
-            const client = clients.find(c => c.id == clientId);
+            const client = clients.find(c => c.id === parseFloat(clientId));
             topClientsList.innerHTML += `<li><span class="name">${client ? client.name : 'Cliente Removido'}</span> <span class="amount">${formatCurrency(amount)}</span></li>`;
         });
     } else {
